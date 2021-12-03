@@ -9,7 +9,7 @@ surface = pygame.display.set_mode((1600, 900))
 cfg  = {
     'FPS': 200,
     'seed': 1,
-    'difficulty': 'easy',
+    'difficulty': 'medium',
     'layers': [100],
     'activation': 'ReLU',
     'load_choice': True
@@ -45,7 +45,7 @@ def load_choice(value):
         menu.add.text_input('FPS : ', default=cfg['FPS'], onchange=set_fps)
         menu.add.text_input('Seed : ', default=cfg['seed'], onchange=set_seed)
         menu.add.text_input('Hidden Layer Setup (in list) : ', default=str(cfg['layers']), onchange=set_layers)
-        menu.add.selector('Difficulty : ', [('Easy', 1), ('Medium', 2), ('Hard', 3)], onchange=set_difficulty)
+        menu.add.selector('Difficulty : ', [('Medium', 1), ('Easy', 2), ('Hard', 3)], onchange=set_difficulty)
         menu.add.selector('Activation : ', [('ReLU', 1), ('SGD', 2), ('tanh', 3)], onchange=set_activation)
         menu.add.button('Play', start_the_game)
         menu.add.button('Quit', pygame_menu.events.EXIT)

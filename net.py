@@ -27,6 +27,7 @@ class NeuralNetwork(nn.Module):
         layers.append(nn.Sigmoid())
 
         self.linear_relu_stack = nn.Sequential(*layers)
+
     def forward(self, x):
         logits = self.linear_relu_stack(x)
         return logits
@@ -47,6 +48,8 @@ class MyBird(Bird):
 
 
 def main(cfg):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     seed = 0.1
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
@@ -58,7 +61,7 @@ def main(cfg):
     seed = int(cfg['seed'])
 
     model = NeuralNetwork(cfg['layers'])
-    model.cuda()
+    model.to(device)
 
     loss_fn = nn.BCELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
@@ -93,7 +96,7 @@ def main(cfg):
                         sys.exit()
 
                 if my_bird.closest_pipe is not None:
-                    inp = my_bird.get_input_array().to('cuda')
+                    inp = my_bird.get_input_array().to(device)
                     pred = model(inp)
                     if pred.item() >= 0.5:
                         my_bird.jump()
@@ -108,7 +111,7 @@ def main(cfg):
                 if pred is not None:
                     # Neural Net training
                     y_dist = (my_bird.closest_pipe.y1 + my_bird.closest_pipe.y2)/2 - my_bird.y
-                    y = torch.tensor([0.5 - (y_dist/size_y)], device='cuda')
+                    y = torch.tensor([0.5 - (y_dist/size_y)], device=device)
 
                     batch_y.append(y)
                     batch_pred.append(pred)
@@ -116,8 +119,8 @@ def main(cfg):
                     if not game.has_alive_birds:
                         steps += 1
 
-                        pred_tens = torch.stack([batch_pred[-1]]).to('cuda')
-                        y_tens = torch.stack([batch_y[-1]]).to('cuda')
+                        pred_tens = torch.stack([batch_pred[-1]]).to(device)
+                        y_tens = torch.stack([batch_y[-1]]).to(device)
                         loss = loss_fn(pred_tens, y_tens)
                         optimizer.zero_grad()
                         loss.backward()
@@ -141,7 +144,7 @@ if __name__=="__main__":
     cfg = {
         'FPS': 200,
         'seed': 1,
-        'difficulty': 'easy',
+        'difficulty': 'medium',
         'layers': [100],
         'activation': 'ReLU',
         'load_choice': True
